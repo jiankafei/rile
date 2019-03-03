@@ -2,6 +2,19 @@
 
   下拉刷新，上拉加载，无限加载
 
+  1. 支持横轴纵轴
+  2. 支持主动上拉下拉
+  3. 规避垂直轴滑动
+
+## 表现
+
+  pulldown
+      less > 0
+      over > stay
+              > pulldown > stay
+              > pullup   > stay
+                    > back > prevent
+
 ## options
 
   ```js
