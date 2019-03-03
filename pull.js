@@ -212,12 +212,13 @@ export default class Pull {
         capture: false,
       });
       document.removeEventListener('touchend', handleEnd, false);
-      if (distance === 0) return;
       if (fetching) {
         const option = options[action];
         const stayDistance = action === 'pulldown' ? option.stayDistance : -option.stayDistance;
         return slideTo(motionEl, axial, stayDistance, 200);
-      } else if (status === 'over') {
+      }
+      if (distance === 0) return;
+      if (status === 'over') {
         return actionLoading();
       }
       slideTo(motionEl, axial, 0, 200)
