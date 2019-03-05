@@ -178,7 +178,6 @@ const bindEvent = (options) => {
 
   const {
     elements,
-    backStartOfTouchLife,
     axial,
     damping,
     scrollProp,
@@ -196,7 +195,7 @@ const bindEvent = (options) => {
 
   const handleMove = ev => {
     if (ev.touches.length > 1) return;
-    if (backStartOfTouchLife) return;
+    if (options.backStartOfTouchLife) return;
     const touch = ev.touches[0];
     const moveData = {
       clientX: touch.clientX,
