@@ -98,9 +98,7 @@ const finalEndReached = (el, {
   scrollProp,
   offsetSize,
   scrollSize,
-}) => {
-  return el[scrollProp] + el[offsetSize] + 1 >= el[scrollSize];
-};
+}) => (el[scrollProp] + el[offsetSize] + 1 >= el[scrollSize]);
 
 // status 更新
 const pulldownStatusUpdate = (options) => {
