@@ -2,14 +2,13 @@ import styles from './styles';
 import {
   calc,
   dealTouch,
-  // throttle,
-  bottomReached,
 } from './util';
 
 import defaultOptions from './options';
 
 const wm = new WeakMap();
 
+// 合并 options
 const mergeOptions = (a, b) => {
   const options = Object.assign(Object.create(null), a, b);
   options.fetch = Object.assign(Object.create(null), a.fetch, b.fetch);
@@ -116,6 +115,10 @@ export default class Pull {
         const val = axial === 'H' ? `${dis}px, 0, 0` : `0, ${dis}px, 0`;
         el.style.setProperty('transform', `translate3d(${val})`);
       });
+    };
+    // 触底
+    const bottomReached = (el) => {
+      return el.scrollTop + el.offsetHeight + 1 >= el.scrollHeight;
     };
     // 更新 pulldown 的 status
     const pulldownStatusUpdate = () => {

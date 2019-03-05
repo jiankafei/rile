@@ -59,15 +59,10 @@ const throttle = (() => {
     }
   };
 })();
-// 是否触底
-const bottomReached = (el) => {
-  return el.scrollTop + el.offsetHeight + 1 >= el.scrollHeight;
-};
 
 export {
   createElement,
   calc,
   dealTouch,
   throttle,
-  bottomReached,
 };
