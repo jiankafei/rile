@@ -49,7 +49,7 @@ const slideTo = (el, cssfunc, distance, transition, options) => {
       el.style.setProperty('transition', `${transition}ms`);
     }
     options.distance = distance;
-    el.style.setProperty('transform', `${cssfunc}(${distance})`);
+    el.style.setProperty('transform', `${cssfunc}(${distance}px)`);
   });
 }
 
@@ -93,9 +93,9 @@ const actionLoading = (options) => {
   const {
     fetch,
     distance,
-    axial,
     elements,
     action,
+    cssfunc,
   } = options;
   const {
     stayDistance,
@@ -104,7 +104,7 @@ const actionLoading = (options) => {
   const stayDistanceDealed = action === 'pulldown' ? stayDistance : -stayDistance;
   options.status = 'fetch';
   options.fetching = true;
-  slideTo(elements.motionEl, axial, stayDistanceDealed, 200, options)
+  slideTo(elements.motionEl, cssfunc, stayDistanceDealed, 200, options)
     .then(() => fetch[action]())
     .then(() => new Promise((resolve) => {
       if (loadedStayTime < 200) {
@@ -118,7 +118,7 @@ const actionLoading = (options) => {
       options.status = 'back';
       options.backStartOfTouchLife = true;
       if (distance === 0) return Promise.resolve();
-      return slideTo(elements.motionEl, axial, 0, 200, options);
+      return slideTo(elements.motionEl, cssfunc, 0, 200, options);
     })
     .then(() => {
       options.status = 'normal';
@@ -175,7 +175,7 @@ const bindEvent = (options) => {
   let originStartData = null; // touchstart 事件对象数据
   let prevDistance = 0; // 上一个 distance
   let originScrollDistance = 0; // 起始滚动高度
-  let distance = options.distance;
+
   const {
     elements,
     backStartOfTouchLife,
@@ -186,11 +186,14 @@ const bindEvent = (options) => {
     endPullDirection,
     scrollSize,
     offsetSize,
+    cssfunc,
   } = options;
+
   const {
     scrollEl,
     motionEl,
   } = elements;
+
   const handleMove = ev => {
     if (ev.touches.length > 1) return;
     if (backStartOfTouchLife) return;
@@ -215,18 +218,18 @@ const bindEvent = (options) => {
     if (options.pulling) {
       // 限制 distance
       if (options.action === 'pulldown') {
-        distance = (originDeltaData.deltaA - originScrollDistance) * damping + prevDistance;
-        if (distance < 0) distance = 0;
+        options.distance = (originDeltaData.deltaA - originScrollDistance) * damping + prevDistance;
+        if (options.distance < 0) options.distance = 0;
         pulldownStatusUpdate(options);
       } else if (options.action === 'pullup') {
-        distance = (originDeltaData.deltaA + scrollEl[scrollSize] - scrollEl[offsetSize] - originScrollDistance) * damping + prevDistance;
-        if (distance > 0) distance = 0;
+        options.distance = (originDeltaData.deltaA + scrollEl[scrollSize] - scrollEl[offsetSize] - originScrollDistance) * damping + prevDistance;
+        if (options.distance > 0) options.distance = 0;
         pullupStatusUpdate(options);
       }
       // 阻止滚动并移动
       ev.preventDefault();
       ev.stopPropagation();
-      slideTo(motionEl, axial, distance, null, options);
+      slideTo(motionEl, cssfunc, options.distance, null, options);
     }
     // 更新 startData
     startData = moveData;
@@ -246,13 +249,13 @@ const bindEvent = (options) => {
     });
     document.removeEventListener('touchend', handleEnd, false);
     if (fetching) {
-      return slideTo(motionEl, axial, stayDistanceDealed, 200, options);
+      return slideTo(motionEl, cssfunc, stayDistanceDealed, 200, options);
     }
-    if (distance === 0) return;
+    if (options.distance === 0) return;
     if (status === 'over') {
       return actionLoading(options);
     }
-    slideTo(motionEl, axial, 0, 200, options)
+    slideTo(motionEl, cssfunc, 0, 200, options)
       .then(() => {
         options.status = 'normal';
         options.pulling = false;
@@ -260,7 +263,7 @@ const bindEvent = (options) => {
   };
 
   const handleStart = ev => {
-    prevDistance = distance;
+    prevDistance = options.distance;
     options.status = 'normal';
     options.backStartOfTouchLife = false;
     motionEl.style.removeProperty('transition');
@@ -306,7 +309,7 @@ export default class Pull {
       startPullDirection: 'right',
       endPullDirection: 'left',
     });
-
+    console.log(options);
     wm.set(this, options);
     init(options);
     bindEvent(options);
