@@ -92,7 +92,6 @@ const pullupStatusUpdate = (options) => {
 const actionLoading = (options) => {
   const {
     fetch,
-    distance,
     elements,
     action,
     cssfunc,
@@ -108,22 +107,24 @@ const actionLoading = (options) => {
     .then(() => fetch[action]())
     .then(() => new Promise((resolve) => {
       if (loadedStayTime < 200) {
-        return resolve();
-      }
-      setTimeout(() => {
         resolve();
-      }, loadedStayTime);
+      } else {
+        setTimeout(() => {
+          resolve();
+        }, loadedStayTime);
+      }
     }))
     .then(() => {
       options.status = 'back';
       options.backStartOfTouchLife = true;
-      if (distance === 0) return Promise.resolve();
+      if (options.distance === 0) return Promise.resolve();
       return slideTo(elements.motionEl, cssfunc, 0, 200, options);
     })
     .then(() => {
       options.status = 'normal';
       options.pulling = false;
       options.fetching = false;
+      options.distance = 0;
       console.log('归位');
     })
     .catch(console.warn);
@@ -175,6 +176,7 @@ const bindEvent = (options) => {
   let originStartData = null; // touchstart 事件对象数据
   let prevDistance = 0; // 上一个 distance
   let originScrollDistance = 0; // 起始滚动高度
+  // let direction = ''; // 滑动方向
 
   const {
     elements,
@@ -234,10 +236,17 @@ const bindEvent = (options) => {
     startData = moveData;
   };
 
-  const handleEnd = () => {
+  const handleEnd = (ev) => {
+    if (options.backStartOfTouchLife) return;
+    const touch = ev.changedTouches[0];
+    const endData = {
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      timeStamp: ev.timeStamp,
+    };
+    const deltaData = dealTouch(originStartData, endData, axial);
+    if (!deltaData.delta) return;
     const {
-      fetching,
-      status,
       action,
     } = options;
     const stayDistance = options[action].stayDistance;
@@ -247,15 +256,16 @@ const bindEvent = (options) => {
       capture: false,
     });
     document.removeEventListener('touchend', handleEnd, false);
-    if (fetching) {
+    if (options.fetching) {
       return slideTo(motionEl, cssfunc, stayDistanceDealed, 200, options);
     }
     if (options.distance === 0) return;
-    if (status === 'over') {
+    if (options.status === 'over') {
       return actionLoading(options);
     }
     slideTo(motionEl, cssfunc, 0, 200, options)
       .then(() => {
+        options.distance = 0;
         options.status = 'normal';
         options.pulling = false;
       });
@@ -308,7 +318,6 @@ export default class Pull {
       startPullDirection: 'right',
       endPullDirection: 'left',
     });
-    console.log(options);
     wm.set(this, options);
     init(options);
     bindEvent(options);
