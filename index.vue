@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import Pull from './pull';
+import Pull from './pull2';
 import {
   createElement,
 } from './util';

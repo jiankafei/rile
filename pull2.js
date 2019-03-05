@@ -36,46 +36,6 @@ const mergeOptions = (a, b) => {
   return options;
 };
 
-// init
-const init = (options) => {
-  const {
-    height,
-    elements,
-  } = options;
-
-  const {
-    pullEl,
-    motionEl,
-    scrollEl,
-    refreshEl,
-    loadmoreEl,
-  } = elements;
-
-  for (const [name, style] of Object.entries(styles)) {
-    if (elements[name]) {
-      for (const [key, val] of Object.entries(style)) {
-        elements[name] && elements[name].style.setProperty(key, val, 'important');
-      }
-    }
-  }
-
-  const negativeHeight = calc(height, '*', -1);
-  pullEl.style.setProperty('height', height, 'important');
-  motionEl.style.setProperty('top', negativeHeight, 'important');
-  motionEl.style.setProperty('bottom', negativeHeight, 'important');
-  scrollEl.style.setProperty('top', height, 'important');
-  scrollEl.style.setProperty('height', height, 'important');
-
-  if (refreshEl) {
-    const refreshHeight = window.getComputedStyle(refreshEl).getPropertyValue('height');
-    refreshEl.style.setProperty('top', calc(height, '-', refreshHeight), 'important');
-  }
-  if (loadmoreEl) {
-    const loadmoreHeight = window.getComputedStyle(loadmoreEl).getPropertyValue('height');
-    loadmoreEl.style.setProperty('bottom', calc(height, '-', loadmoreHeight), 'important');
-  }
-}
-
 // slide
 const slideTo = (el, cssfunc, distance, transition, options) => {
   return new Promise((resolve) => {
@@ -141,7 +101,7 @@ const actionLoading = (options) => {
     stayDistance,
     loadedStayTime,
   } = options[action];
-  const stayDistanceDealed = action === 'pulldown' ? stayistance : -stayDistance;
+  const stayDistanceDealed = action === 'pulldown' ? stayDistance : -stayDistance;
   options.status = 'fetch';
   options.fetching = true;
   slideTo(elements.motionEl, axial, stayDistanceDealed, 200, options)
@@ -158,7 +118,7 @@ const actionLoading = (options) => {
       options.status = 'back';
       options.backStartOfTouchLife = true;
       if (distance === 0) return Promise.resolve();
-      return slideTo(elements.motionEl, axial, 0, 200);
+      return slideTo(elements.motionEl, axial, 0, 200, options);
     })
     .then(() => {
       options.status = 'normal';
@@ -169,12 +129,53 @@ const actionLoading = (options) => {
     .catch(console.warn);
 }
 
+// init
+const init = (options) => {
+  const {
+    height,
+    elements,
+  } = options;
+
+  const {
+    pullEl,
+    motionEl,
+    scrollEl,
+    refreshEl,
+    loadmoreEl,
+  } = elements;
+
+  for (const [name, style] of Object.entries(styles)) {
+    if (elements[name]) {
+      for (const [key, val] of Object.entries(style)) {
+        elements[name] && elements[name].style.setProperty(key, val, 'important');
+      }
+    }
+  }
+
+  const negativeHeight = calc(height, '*', -1);
+  pullEl.style.setProperty('height', height, 'important');
+  motionEl.style.setProperty('top', negativeHeight, 'important');
+  motionEl.style.setProperty('bottom', negativeHeight, 'important');
+  scrollEl.style.setProperty('top', height, 'important');
+  scrollEl.style.setProperty('height', height, 'important');
+
+  if (refreshEl) {
+    const refreshHeight = window.getComputedStyle(refreshEl).getPropertyValue('height');
+    refreshEl.style.setProperty('top', calc(height, '-', refreshHeight), 'important');
+  }
+  if (loadmoreEl) {
+    const loadmoreHeight = window.getComputedStyle(loadmoreEl).getPropertyValue('height');
+    loadmoreEl.style.setProperty('bottom', calc(height, '-', loadmoreHeight), 'important');
+  }
+}
+
 // bind event
 const bindEvent = (options) => {
   let startData = null; // 跟随 touchmove 更迭的事件对象数据
   let originStartData = null; // touchstart 事件对象数据
   let prevDistance = 0; // 上一个 distance
   let originScrollDistance = 0; // 起始滚动高度
+  let distance = options.distance;
   const {
     elements,
     backStartOfTouchLife,
@@ -183,7 +184,8 @@ const bindEvent = (options) => {
     scrollProp,
     startPullDirection,
     endPullDirection,
-    distance,
+    scrollSize,
+    offsetSize,
   } = options;
   const {
     scrollEl,
@@ -216,7 +218,7 @@ const bindEvent = (options) => {
         distance = (originDeltaData.deltaA - originScrollDistance) * damping + prevDistance;
         if (distance < 0) distance = 0;
         pulldownStatusUpdate(options);
-      } else if (action === 'pullup') {
+      } else if (options.action === 'pullup') {
         distance = (originDeltaData.deltaA + scrollEl[scrollSize] - scrollEl[offsetSize] - originScrollDistance) * damping + prevDistance;
         if (distance > 0) distance = 0;
         pullupStatusUpdate(options);
@@ -234,7 +236,10 @@ const bindEvent = (options) => {
     const {
       fetching,
       status,
+      action,
     } = options;
+    const stayDistance = options[action].stayDistance;
+    const stayDistanceDealed = action === 'pulldown' ? stayDistance : -stayDistance;
     document.removeEventListener('touchmove', handleMove, {
       passive: false,
       capture: false,
@@ -307,6 +312,10 @@ export default class Pull {
     bindEvent(options);
   };
   // 主动触发加载效果
-  pulldown() {};
-  pullup() {};
+  pulldown() {
+    const options = wm.get(this);
+  };
+  pullup() {
+    const options = wm.get(this);
+  };
 }
