@@ -147,7 +147,8 @@ const actionStay = (options) => {
 // init
 const init = (options) => {
   const {
-    height,
+    size,
+    axial,
     elements,
   } = options;
 
@@ -166,21 +167,33 @@ const init = (options) => {
       }
     }
   }
+  let sizeProp;
+  let startPositionProp;
+  let endPositionProp;
+  if (axial === 'V') {
+    sizeProp = 'height';
+    startPositionProp = 'top';
+    endPositionProp = 'bottom';
+  } else {
+    sizeProp = 'width';
+    startPositionProp = 'left';
+    endPositionProp = 'right';
+  }
 
-  const negativeHeight = calc(height, '*', -1);
-  pullEl.style.setProperty('height', height, 'important');
-  motionEl.style.setProperty('top', negativeHeight, 'important');
-  motionEl.style.setProperty('bottom', negativeHeight, 'important');
-  scrollEl.style.setProperty('top', height, 'important');
-  scrollEl.style.setProperty('height', height, 'important');
+  const negativeSize = calc(size, '*', -1);
+  pullEl.style.setProperty(sizeProp, size, 'important');
+  motionEl.style.setProperty(startPositionProp, negativeSize, 'important');
+  motionEl.style.setProperty(endPositionProp, negativeSize, 'important');
+  scrollEl.style.setProperty(startPositionProp, size, 'important');
+  scrollEl.style.setProperty(sizeProp, size, 'important');
 
   if (refreshEl) {
-    const refreshHeight = window.getComputedStyle(refreshEl).getPropertyValue('height');
-    refreshEl.style.setProperty('top', calc(height, '-', refreshHeight), 'important');
+    const refreshSize = window.getComputedStyle(refreshEl).getPropertyValue(sizeProp);
+    refreshEl.style.setProperty(startPositionProp, calc(size, '-', refreshSize), 'important');
   }
   if (loadmoreEl) {
-    const loadmoreHeight = window.getComputedStyle(loadmoreEl).getPropertyValue('height');
-    loadmoreEl.style.setProperty('bottom', calc(height, '-', loadmoreHeight), 'important');
+    const loadmoreSize = window.getComputedStyle(loadmoreEl).getPropertyValue(sizeProp);
+    loadmoreEl.style.setProperty(endPositionProp, calc(size, '-', loadmoreSize), 'important');
   }
 }
 

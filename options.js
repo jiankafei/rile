@@ -1,6 +1,6 @@
 export default {
-  height: '100vh', // 高度
   axial: 'V', // 轴向
+  size: '100vh', // 轴向尺寸
   damping: .5, // 阻尼
   pulldownBounce: true, // 下拉是否回弹
   pullupBounce: true, // 上拉是否回弹
