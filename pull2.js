@@ -1,4 +1,3 @@
-import styles from './styles';
 import {
   calc,
   dealTouch,
@@ -160,39 +159,49 @@ const init = (options) => {
     loadmoreEl,
   } = elements;
 
-  for (const [name, style] of Object.entries(styles)) {
-    if (elements[name]) {
-      for (const [key, val] of Object.entries(style)) {
-        elements[name] && elements[name].style.setProperty(key, val, 'important');
-      }
-    }
-  }
-  let sizeProp;
+  const negativeSize = calc(size, '*', -1);
+  let axialProp;
+  let sideProp;
   let startPositionProp;
   let endPositionProp;
   if (axial === 'V') {
-    sizeProp = 'height';
+    axialProp = 'height';
+    sideProp = 'width';
     startPositionProp = 'top';
     endPositionProp = 'bottom';
   } else {
-    sizeProp = 'width';
+    axialProp = 'width';
+    sideProp = 'height';
     startPositionProp = 'left';
     endPositionProp = 'right';
   }
 
-  const negativeSize = calc(size, '*', -1);
-  pullEl.style.setProperty(sizeProp, size, 'important');
+  pullEl.style.setProperty('position', 'relative', 'important');
+  pullEl.style.setProperty('overflow', 'hidden', 'important');
+  pullEl.style.setProperty(axialProp, size, 'important');
+  
+  motionEl.style.setProperty('position', 'absolute', 'important');
+  motionEl.style.setProperty(sideProp, '100%', 'important');
   motionEl.style.setProperty(startPositionProp, negativeSize, 'important');
   motionEl.style.setProperty(endPositionProp, negativeSize, 'important');
+
+  scrollEl.style.setProperty('position', 'absolute', 'important');
+  scrollEl.style.setProperty('overflow', 'auto', 'important');
+  scrollEl.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
   scrollEl.style.setProperty(startPositionProp, size, 'important');
-  scrollEl.style.setProperty(sizeProp, size, 'important');
+  scrollEl.style.setProperty(axialProp, size, 'important');
+  scrollEl.style.setProperty(sideProp, '100%', 'important');
 
   if (refreshEl) {
-    const refreshSize = window.getComputedStyle(refreshEl).getPropertyValue(sizeProp);
+    const refreshSize = window.getComputedStyle(refreshEl).getPropertyValue(axialProp);
+    refreshEl.style.setProperty('position', 'absolute', 'important');
+    refreshEl.style.setProperty(sideProp, '100%', 'important');
     refreshEl.style.setProperty(startPositionProp, calc(size, '-', refreshSize), 'important');
   }
   if (loadmoreEl) {
-    const loadmoreSize = window.getComputedStyle(loadmoreEl).getPropertyValue(sizeProp);
+    const loadmoreSize = window.getComputedStyle(loadmoreEl).getPropertyValue(axialProp);
+    loadmoreEl.style.setProperty('position', 'absolute', 'important');
+    loadmoreEl.style.setProperty(sideProp, '100%', 'important');
     loadmoreEl.style.setProperty(endPositionProp, calc(size, '-', loadmoreSize), 'important');
   }
 }
