@@ -27,7 +27,7 @@ export default {
   mounted() {
     new Pull({
       axial: 'H',
-      size: '100vh',
+      size: '100vw',
       elements: {
         pullEl: this.$refs.pull,
         motionEl: this.$refs.motion,
