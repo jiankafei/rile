@@ -55,9 +55,9 @@ const slideTo = (el, cssfunc, distance, transition, options) => {
 // 触底
 const finalEndReached = (el, {
   scrollProp,
-  offsetSize,
   scrollSize,
-}) => (el[scrollProp] + el[offsetSize] + 1 >= el[scrollSize]);
+  clientSize,
+}) => (el[scrollProp] + el[clientSize] + 1 >= el[scrollSize]);
 
 // status 更新
 const pulldownStatusUpdate = (options) => {
@@ -221,7 +221,7 @@ const bindEvent = (options) => {
     startPullDirection,
     endPullDirection,
     scrollSize,
-    offsetSize,
+    clientSize,
     cssfunc,
   } = options;
 
@@ -258,7 +258,7 @@ const bindEvent = (options) => {
         if (options.distance < 0) options.distance = 0;
         pulldownStatusUpdate(options);
       } else if (options.action === 'pullup') {
-        options.distance = (originDeltaData.deltaA + scrollEl[scrollSize] - scrollEl[offsetSize] - originScrollDistance) * damping + prevDistance;
+        options.distance = (originDeltaData.deltaA + scrollEl[scrollSize] - scrollEl[clientSize] - originScrollDistance) * damping + prevDistance;
         if (options.distance > 0) options.distance = 0;
         pullupStatusUpdate(options);
       }
@@ -334,15 +334,15 @@ export default class Pull {
     }, options.axial === 'V' ? {
       cssfunc: 'translatey',
       scrollProp: 'scrollTop',
-      offsetSize: 'offsetHeight',
       scrollSize: 'scrollHeight',
+      clientSize: 'clientHeight',
       startPullDirection: 'bottom',
       endPullDirection: 'top',
     } : {
       cssfunc: 'translatex',
       scrollProp: 'scrollLeft',
-      offsetSize: 'offsetWidth',
       scrollSize: 'scrollWidth',
+      clientSize: 'clientWidth',
       startPullDirection: 'right',
       endPullDirection: 'left',
     });
