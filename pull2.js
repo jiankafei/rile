@@ -279,7 +279,6 @@ const bindEvent = (options) => {
     });
     document.removeEventListener('touchend', handleEnd, false);
     if (options.stayingOfTouchLife || options.backingOfTouchLife) {
-      console.log(111);
       options.stayingOfTouchLife = options.backingOfTouchLife = false;
       return;
     }
@@ -301,6 +300,9 @@ const bindEvent = (options) => {
   };
 
   const handleStart = ev => {
+    if (!options.loadLife) {
+      options.stayingOfTouchLife = options.backingOfTouchLife = false;
+    }
     prevDistance = options.distance;
     const touch = ev.targetTouches[0];
     startData = originStartData = {
