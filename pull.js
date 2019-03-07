@@ -1,3 +1,4 @@
+import 'intersection-observer';
 import {
   calc,
   dealTouch,
@@ -18,18 +19,21 @@ const mergeOptions = (a, b) => {
     options.pulldownBounce = true;
   } else {
     delete options.pulldown;
+    delete options.elements.refreshEl;
   }
   if (b.pullup) {
     options.pullup = Object.assign(Object.create(null), a.pullup, b.pullup);
     options.pullupBounce = true;
   } else {
     delete options.pullup;
+    delete options.elements.loadmoreEl;
   }
   if (b.infinate) {
     options.infinate = Object.assign(Object.create(null), a.infinate, b.infinate);
     options.pullupBounce = false;
   } else {
-    delete options.infinate;    
+    delete options.infinate;
+    delete options.elements.infinateEl;
   }
 
   return options;
@@ -227,12 +231,27 @@ const bindEvent = (options) => {
     scrollSize,
     clientSize,
     cssfunc,
+    infinate,
   } = options;
 
   const {
     scrollEl,
     motionEl,
+    infinateEl,
   } = elements;
+
+  if (infinateEl) {
+    const io = new IntersectionObserver((entries, observer) => {
+      if (entries[0].isIntersecting) {
+        console.log(111);
+      }
+    }, {
+      root: scrollEl,
+      rootMargin: `${infinate.reachBottomDistance}px`,
+      threshold: 0,
+    });
+    io.observe(infinateEl);
+  }
 
   const handleMove = ev => {
     if (ev.touches.length > 1) return;

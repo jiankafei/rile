@@ -10,5 +10,7 @@
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "intersection-observer": "^0.5.1"
+  }
 }

@@ -4,9 +4,9 @@
     <section class="pull-refresh" ref="refresh"></section>
     <section class="pull-scroll" ref="scroll">
       <div v-for="(num, index) of 50" :key="index" class="scroll-item">打分法第三方</div>
+      <section class="pull-infinate" ref="infinate"></section>
     </section>
     <section class="pull-loadmore" ref="loadmore"></section>
-    <section class="pull-infinate" ref="infinate"></section>
   </div>
 </section>
 </template>
