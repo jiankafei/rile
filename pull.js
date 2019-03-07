@@ -241,7 +241,7 @@ const bindEvent = (options) => {
   } = elements;
 
   if (infinateEl) {
-    const io = new IntersectionObserver((entries, observer) => {
+    const io = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
         console.log(111);
       }

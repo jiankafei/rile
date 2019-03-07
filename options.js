@@ -1,4 +1,5 @@
 export default {
+  total: -1, // 列表总数
   axial: 'V', // 轴向
   size: '100%', // 轴向尺寸
   damping: .5, // 阻尼

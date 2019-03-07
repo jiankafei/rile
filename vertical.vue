@@ -36,7 +36,7 @@ export default {
         infinateEl: this.$refs.infinate,
       },
       pulldown: {},
-      pullup: {},
+      // pullup: {},
       infinate: {},
       fetch: {
         pulldown: () => new Promise((resolve, reject) => {
