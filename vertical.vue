@@ -56,7 +56,7 @@ export default {
       }),
       },
     });
-    // pull.pulldown();
+    pull.pulldown();
   },
 };
 </script>
