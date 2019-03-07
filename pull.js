@@ -97,8 +97,9 @@ const actionBack = (options) => {
   return slideTo(options.elements.motionEl, options.cssfunc, 0, 200, options)
     .then(() => {
       options.status = 'normal';
-      options.pulling = false;
       options.loadLife = false;
+      options.pulling = false;
+      options.pullStatus = 'less';
       console.log('回归');
       return Promise.resolve();
     });
@@ -296,6 +297,7 @@ const bindEvent = (options) => {
   };
 
   const handleEnd = (ev) => {
+    console.log(options.pullStatus);
     document.removeEventListener('touchmove', handleMove, {
       passive: false,
       capture: false,
@@ -319,6 +321,7 @@ const bindEvent = (options) => {
     slideTo(motionEl, cssfunc, 0, 200, options)
       .then(() => {
         options.pulling = false;
+        options.pullStatus = 'less';
       });
   };
 

@@ -78,6 +78,8 @@
 
   ```js
   options = {
+    doneText: '加载完成',
+    failText: '加载失败',
     loadingText: '加载中...',
     triggerDistance: 100,
   }
