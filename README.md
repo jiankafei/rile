@@ -1,10 +1,9 @@
 # Pull
 
-  下拉刷新，上拉加载，无限加载
-
-  1. 支持横轴纵轴
-  2. 支持主动上拉下拉
+  1. 下拉刷新，上拉加载，无限加载
+  2. 支持横轴纵轴
   3. 规避垂直轴滑动
+  4. 支持主动上拉下拉
 
 ## 表现
 
@@ -12,8 +11,10 @@
       less > 0
       over > stay
               > pulldown > stay
-              > pullup   > stay
-                    > back > prevent
+                            > stay > prevent
+                            > back > prevent
+              > pullup > less
+                            > back > prevent
 
 ## options
 
