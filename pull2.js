@@ -109,6 +109,7 @@ const actionFetch = (options) => {
     loadedStayTime,
   } = options[action];
   options.status = 'fetch';
+  options.backingOfTouchLife = true;
   return fetch[action]()
     .then(() => new Promise((resolve) => {
       if (loadedStayTime < 200) {
@@ -127,6 +128,7 @@ const actionStay = (options) => {
   options.loadLife = true;
   if (options.status === 'normal') {
     options.status = 'stay';
+    options.stayingOfTouchLife = true;
   }
   const stayDistance = options[options.action].stayDistance;
   const stayDistanceDealed = options.action === 'pulldown' ? stayDistance : -stayDistance;
@@ -209,8 +211,6 @@ const bindEvent = (options) => {
   let originStartData = null; // touchstart 事件对象数据
   let prevDistance = 0; // 上一个 distance
   let originScrollDistance = 0; // 起始滚动高度
-  let stayingOfTouchLife = false; // touch 周期里 stay动作开始
-  let backingOfTouchLife = false; // touch 周期里 back动作开始
 
   const {
     elements,
@@ -231,15 +231,7 @@ const bindEvent = (options) => {
 
   const handleMove = ev => {
     if (ev.touches.length > 1) return;
-    if (stayingOfTouchLife || backingOfTouchLife) return;
-    if (options.status === 'stay') {
-      console.log(111);
-      stayingOfTouchLife = true;
-    }
-    if (options.status === 'back') {
-      console.log(222);
-      backingOfTouchLife = true;
-    }
+    if (options.stayingOfTouchLife || options.backingOfTouchLife) return;
     const touch = ev.touches[0];
     const moveData = {
       clientX: touch.clientX,
@@ -285,7 +277,10 @@ const bindEvent = (options) => {
       capture: false,
     });
     document.removeEventListener('touchend', handleEnd, false);
-    stayingOfTouchLife = backingOfTouchLife = false;
+    if (options.stayingOfTouchLife || options.backingOfTouchLife) {
+      options.stayingOfTouchLife = options.backingOfTouchLife = false;
+      return;
+    }
     const touch = ev.changedTouches[0];
     const endData = {
       clientX: touch.clientX,
@@ -331,6 +326,8 @@ export default class Pull {
       status: 'normal',
       action: 'normal',
       pulling: false,
+      stayingOfTouchLife: false,
+      backingOfTouchLife: false,
     }, options.axial === 'V' ? {
       cssfunc: 'translatey',
       scrollProp: 'scrollTop',
