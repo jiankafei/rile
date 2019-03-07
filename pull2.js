@@ -37,6 +37,7 @@ const mergeOptions = (a, b) => {
 
 // slide
 const slideTo = (el, cssfunc, distance, transition, options) => {
+  if (options.distance === distance) return Promise.resolve();
   return new Promise((resolve) => {
     if (transition) {
       el.addEventListener('transitionend', () => {
@@ -60,29 +61,27 @@ const finalEndReached = (el, {
 }) => (el[scrollProp] + el[clientSize] + 1 >= el[scrollSize]);
 
 // status 更新
-const pulldownStatusUpdate = (options) => {
+const pulldownStatusUpdate = (distance, options) => {
   const {
     pulldown,
-    distance,
   } = options;
   if (pulldown) {
     if (distance < pulldown.triggerDistance) {
-      options.status = 'less';
+      options.pullStatus = 'less';
     } else if (distance >= pulldown.triggerDistance) {
-      options.status = 'over';
+      options.pullStatus = 'over';
     }
   }
 }
-const pullupStatusUpdate = (options) => {
+const pullupStatusUpdate = (distance, options) => {
   const {
     pullup,
-    distance,
   } = options;
   if (pullup) {
     if (Math.abs(distance) < pullup.triggerDistance) {
-      options.status = 'less';
+      options.pullStatus = 'less';
     } else if (Math.abs(distance) >= pullup.triggerDistance) {
-      options.status = 'over';
+      options.pullStatus = 'over';
     }
   }
 }
@@ -90,17 +89,14 @@ const pullupStatusUpdate = (options) => {
 // back 动作
 const actionBack = (options) => {
   options.status = 'back';
-  options.backStartOfTouchLife = true;
-  if (options.distance === 0) return Promise.resolve();
   return slideTo(options.elements.motionEl, options.cssfunc, 0, 200, options)
     .then(() => {
-      options.backStartOfTouchLife = false;
       options.status = 'normal';
       options.pulling = false;
-      options.fetching = false;
       options.distance = 0;
-    })
-    .catch(console.warn);
+      options.loadLife = false;
+      return Promise.resolve();
+    });
 };
 
 // fetch 动作
@@ -113,8 +109,7 @@ const actionFetch = (options) => {
     loadedStayTime,
   } = options[action];
   options.status = 'fetch';
-  options.fetching = true;
-  fetch[action]()
+  return fetch[action]()
     .then(() => new Promise((resolve) => {
       if (loadedStayTime < 200) {
         resolve();
@@ -129,13 +124,13 @@ const actionFetch = (options) => {
 
 // stay 动作
 const actionStay = (options) => {
-  options.stayStartOfTouchLife = true;
+  options.loadLife = true;
+  options.status = 'stay';
   const stayDistance = options[options.action].stayDistance;
   const stayDistanceDealed = options.action === 'pulldown' ? stayDistance : -stayDistance;
   return slideTo(options.elements.motionEl, options.cssfunc, stayDistanceDealed, 200, options)
     .then(() => {
-      options.stayStartOfTouchLife = false;
-      if (options.fetching) {
+      if (options.status === 'fetch' || options.status === 'back') {
         return Promise.resolve(options);
       } else {
         return actionFetch(options);
@@ -212,6 +207,8 @@ const bindEvent = (options) => {
   let originStartData = null; // touchstart 事件对象数据
   let prevDistance = 0; // 上一个 distance
   let originScrollDistance = 0; // 起始滚动高度
+  let stayingOfTouchLife = false; // touch 周期里 stay动作开始
+  let backingOfTouchLife = false; // touch 周期里 back动作开始
 
   const {
     elements,
@@ -232,7 +229,7 @@ const bindEvent = (options) => {
 
   const handleMove = ev => {
     if (ev.touches.length > 1) return;
-    if (options.backStartOfTouchLife || options.stayStartOfTouchLife) return;
+    if (stayingOfTouchLife || backingOfTouchLife) return;
     const touch = ev.touches[0];
     const moveData = {
       clientX: touch.clientX,
@@ -252,27 +249,33 @@ const bindEvent = (options) => {
       }
     }
     if (options.pulling) {
+      let distance = options.distance;
       // 限制 distance
       if (options.action === 'pulldown') {
-        options.distance = (originDeltaData.deltaA - originScrollDistance) * damping + prevDistance;
-        if (options.distance < 0) options.distance = 0;
-        pulldownStatusUpdate(options);
+        distance = (originDeltaData.deltaA - originScrollDistance) * damping + prevDistance;
+        if (distance < 0) distance = 0;
+        pulldownStatusUpdate(distance, options);
       } else if (options.action === 'pullup') {
-        options.distance = (originDeltaData.deltaA + scrollEl[scrollSize] - scrollEl[clientSize] - originScrollDistance) * damping + prevDistance;
-        if (options.distance > 0) options.distance = 0;
-        pullupStatusUpdate(options);
+        distance = (originDeltaData.deltaA + scrollEl[scrollSize] - scrollEl[clientSize] - originScrollDistance) * damping + prevDistance;
+        if (distance > 0) distance = 0;
+        pullupStatusUpdate(distance, options);
       }
       // 阻止滚动并移动
       ev.preventDefault();
       ev.stopPropagation();
-      slideTo(motionEl, cssfunc, options.distance, null, options);
+      slideTo(motionEl, cssfunc, distance, null, options);
     }
     // 更新 startData
     startData = moveData;
   };
 
   const handleEnd = (ev) => {
-    if (options.backStartOfTouchLife || options.stayStartOfTouchLife) return;
+    document.removeEventListener('touchmove', handleMove, {
+      passive: false,
+      capture: false,
+    });
+    document.removeEventListener('touchend', handleEnd, false);
+    if (stayingOfTouchLife || backingOfTouchLife) return;
     const touch = ev.changedTouches[0];
     const endData = {
       clientX: touch.clientX,
@@ -281,12 +284,7 @@ const bindEvent = (options) => {
     };
     const deltaData = dealTouch(originStartData, endData, axial);
     if (!deltaData.delta) return;
-    document.removeEventListener('touchmove', handleMove, {
-      passive: false,
-      capture: false,
-    });
-    document.removeEventListener('touchend', handleEnd, false);
-    if (options.status === 'over') {
+    if (options.pullStatus === 'over') {
       return actionStay(options);
     }
     slideTo(motionEl, cssfunc, 0, 200, options)
@@ -297,12 +295,9 @@ const bindEvent = (options) => {
   };
 
   const handleStart = ev => {
-    if (options.backStartOfTouchLife || options.stayStartOfTouchLife) return;
+    if (stayingOfTouchLife || backingOfTouchLife) return;
     prevDistance = options.distance;
     options.status = 'normal';
-    options.stayStartOfTouchLife = false;
-    options.backStartOfTouchLife = false;
-    motionEl.style.removeProperty('transition');
     const touch = ev.targetTouches[0];
     startData = originStartData = {
       clientX: touch.clientX,
@@ -325,12 +320,10 @@ export default class Pull {
     options = mergeOptions(defaultOptions, options);
     Object.assign(options, {
       distance: 0,
+      pullStatus: 'less',
       status: 'normal',
       action: 'normal',
       pulling: false,
-      backStartOfTouchLife: false,
-      stayStartOfTouchLife: false,
-      fetching: false,
     }, options.axial === 'V' ? {
       cssfunc: 'translatey',
       scrollProp: 'scrollTop',
