@@ -21,7 +21,7 @@
   ```js
   options = {
     total, // 列表总数，infinate时为必填，loadmore时为非必填
-    height: '100vh', // 高度，所有有效的css值，默认 100vh
+    size: '100vh', // 高度，所有有效的css值，默认 100vh
     axial: 'V', // 轴向[V, H] 默认 V
     damping: .5, // 阻尼值 [0 - 1] 越小阻塞越大，默认 .5
     elements, // 需要传递的元素
