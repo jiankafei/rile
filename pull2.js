@@ -89,6 +89,7 @@ const pullupStatusUpdate = (distance, options) => {
 // back 动作
 const actionBack = (options) => {
   options.status = 'back';
+  options.backingOfTouchLife = true;
   return slideTo(options.elements.motionEl, options.cssfunc, 0, 200, options)
     .then(() => {
       options.status = 'normal';
@@ -109,7 +110,6 @@ const actionFetch = (options) => {
     loadedStayTime,
   } = options[action];
   options.status = 'fetch';
-  options.backingOfTouchLife = true;
   return fetch[action]()
     .then(() => new Promise((resolve) => {
       if (loadedStayTime < 200) {
@@ -137,6 +137,7 @@ const actionStay = (options) => {
       if (options.status === 'fetch' || options.status === 'back') {
         return Promise.resolve(options);
       } else {
+        options.stayingOfTouchLife = false;
         return actionFetch(options);
       }
     });
@@ -278,6 +279,7 @@ const bindEvent = (options) => {
     });
     document.removeEventListener('touchend', handleEnd, false);
     if (options.stayingOfTouchLife || options.backingOfTouchLife) {
+      console.log(111);
       options.stayingOfTouchLife = options.backingOfTouchLife = false;
       return;
     }
