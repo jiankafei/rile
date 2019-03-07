@@ -60,7 +60,7 @@ const finalEndReached = (el, {
   clientSize,
 }) => (el[scrollProp] + el[clientSize] + 1 >= el[scrollSize]);
 
-// status 更新
+// pullStatus 更新
 const pulldownStatusUpdate = (distance, options) => {
   const {
     pulldown,
@@ -93,7 +93,6 @@ const actionBack = (options) => {
     .then(() => {
       options.status = 'normal';
       options.pulling = false;
-      options.distance = 0;
       options.loadLife = false;
       return Promise.resolve();
     });
@@ -125,7 +124,9 @@ const actionFetch = (options) => {
 // stay 动作
 const actionStay = (options) => {
   options.loadLife = true;
-  options.status = 'stay';
+  if (options.status === 'normal') {
+    options.status = 'stay';
+  }
   const stayDistance = options[options.action].stayDistance;
   const stayDistanceDealed = options.action === 'pulldown' ? stayDistance : -stayDistance;
   return slideTo(options.elements.motionEl, options.cssfunc, stayDistanceDealed, 200, options)
@@ -289,7 +290,6 @@ const bindEvent = (options) => {
     }
     slideTo(motionEl, cssfunc, 0, 200, options)
       .then(() => {
-        options.status = 'normal';
         options.pulling = false;
       });
   };
@@ -297,7 +297,6 @@ const bindEvent = (options) => {
   const handleStart = ev => {
     if (stayingOfTouchLife || backingOfTouchLife) return;
     prevDistance = options.distance;
-    options.status = 'normal';
     const touch = ev.targetTouches[0];
     startData = originStartData = {
       clientX: touch.clientX,
