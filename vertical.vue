@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import Pull from './pull2';
+import Pull from './pull';
 import {
   createElement,
 } from './util';
@@ -25,7 +25,7 @@ document.head.appendChild(createElement('meta', {
 export default {
   created() {},
   mounted() {
-    new Pull({
+    const pull = new Pull({
       size: '100vh',
       elements: {
         pullEl: this.$refs.pull,
@@ -56,6 +56,7 @@ export default {
       }),
       },
     });
+    pull.pulldown();
   },
 };
 </script>

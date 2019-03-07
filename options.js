@@ -26,6 +26,8 @@ export default {
   },
   infinate: {
     loadingText: '加载中...',
+    doneText: '加载完成',
+    failText: '加载失败',
     reachBottomDistance: 100,
   },
   // return a promise instance

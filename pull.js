@@ -157,6 +157,7 @@ const init = (options) => {
     scrollEl,
     refreshEl,
     loadmoreEl,
+    infinateEl,
   } = elements;
 
   const negativeSize = calc(size, '*', -1);
@@ -203,6 +204,9 @@ const init = (options) => {
     loadmoreEl.style.setProperty('position', 'absolute', 'important');
     loadmoreEl.style.setProperty(sideProp, '100%', 'important');
     loadmoreEl.style.setProperty(endPositionProp, calc(size, '-', loadmoreSize), 'important');
+  }
+  if (infinateEl) {
+    infinateEl.style.setProperty(sideProp, '100%', 'important');
   }
 }
 
@@ -355,8 +359,14 @@ export default class Pull {
   // 主动触发加载效果
   pulldown() {
     const options = wm.get(this);
+    options.action = 'pulldown';
+    actionStay(options);
   };
   pullup() {
     const options = wm.get(this);
+    if (finalEndReached(options.elements.scrollEl, options)) {
+      options.action = 'pullup';
+      actionStay(options);
+    }
   };
 }
