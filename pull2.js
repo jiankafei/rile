@@ -94,6 +94,7 @@ const actionBack = (options) => {
       options.status = 'normal';
       options.pulling = false;
       options.loadLife = false;
+      console.log('回归');
       return Promise.resolve();
     });
 };
@@ -231,6 +232,14 @@ const bindEvent = (options) => {
   const handleMove = ev => {
     if (ev.touches.length > 1) return;
     if (stayingOfTouchLife || backingOfTouchLife) return;
+    if (options.status === 'stay') {
+      console.log(111);
+      stayingOfTouchLife = true;
+    }
+    if (options.status === 'back') {
+      console.log(222);
+      backingOfTouchLife = true;
+    }
     const touch = ev.touches[0];
     const moveData = {
       clientX: touch.clientX,
@@ -276,7 +285,7 @@ const bindEvent = (options) => {
       capture: false,
     });
     document.removeEventListener('touchend', handleEnd, false);
-    if (stayingOfTouchLife || backingOfTouchLife) return;
+    stayingOfTouchLife = backingOfTouchLife = false;
     const touch = ev.changedTouches[0];
     const endData = {
       clientX: touch.clientX,
@@ -295,7 +304,6 @@ const bindEvent = (options) => {
   };
 
   const handleStart = ev => {
-    if (stayingOfTouchLife || backingOfTouchLife) return;
     prevDistance = options.distance;
     const touch = ev.targetTouches[0];
     startData = originStartData = {
