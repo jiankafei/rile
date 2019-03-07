@@ -330,6 +330,7 @@ export default class Pull {
       status: 'normal',
       action: 'normal',
       pulling: false,
+      loadLife: false,
       stayingOfTouchLife: false,
       backingOfTouchLife: false,
     }, options.axial === 'V' ? {
