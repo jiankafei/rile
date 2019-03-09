@@ -380,12 +380,14 @@ export default class Pull {
   // 主动触发加载效果
   pulldown() {
     const options = wm.get(this);
+    options.pulling = true;
     options.action = 'pulldown';
     actionStay(options);
   };
   pullup() {
     const options = wm.get(this);
     if (finalEndReached(options.elements.scrollEl, options)) {
+      options.pulling = true;
       options.action = 'pullup';
       actionStay(options);
     }
