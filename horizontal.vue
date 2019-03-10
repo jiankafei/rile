@@ -42,17 +42,17 @@ export default {
       fetch: {
         pulldown: () => new Promise((resolve, reject) => {
           setTimeout(() => {
-            resolve();
+            resolve('refresh');
           }, 1000);
         }),
         pullup: () => new Promise((resolve, reject) => {
           setTimeout(() => {
-            resolve();
+            resolve('loadmore');
           }, 1000);
         }),
         infinate: () => new Promise((resolve, reject) => {
           setTimeout(() => {
-            resolve();
+            resolve('infinate');
           }, 1000);
       }),
       },
