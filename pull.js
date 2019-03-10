@@ -404,7 +404,8 @@ export default class Pull {
       clientSize,
     } = options;
     const scrollEl = elements.scrollEl;
-    scrollEl[scrollProp] = scrollEl[scrollSize] - scrollEl[clientSize];
+    // scrollEl[scrollProp] = scrollEl[scrollSize] - scrollEl[clientSize];
+    scrollEl[scrollProp] = scrollEl[scrollSize]; // Bigger is always good.
     options.pulling = true;
     options.action = 'pullup';
     pullFetchProcess(options);
