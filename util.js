@@ -47,7 +47,7 @@ const dealTouch = (start, current, actualAxial = 'V') => {
   };
 };
 // 节流
-const throttle = (() => {
+const createThrottle = () => {
   let ticking = false;
   return fn => {
     if (!ticking) {
@@ -58,11 +58,11 @@ const throttle = (() => {
       });
     }
   };
-})();
+};
 
 export {
   createElement,
   calc,
   dealTouch,
-  throttle,
+  createThrottle,
 };

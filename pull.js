@@ -2,7 +2,7 @@ import 'intersection-observer';
 import {
   calc,
   dealTouch,
-  // throttle,
+  createThrottle,
 } from './util';
 
 import defaultOptions from './options';
@@ -153,7 +153,8 @@ const infinateFetchProcess = (options) => {
 };
 
 // init
-const init = (options) => {
+const init = function() {
+  const options = wm.get(this);
   const {
     size,
     axial,
@@ -220,7 +221,8 @@ const init = (options) => {
 }
 
 // bind event
-const bindEvent = (options) => {
+const bindEvent = function() {
+  const options = wm.get(this);
   let startData = null; // 跟随 touchmove 更迭的事件对象数据
   let originStartData = null; // touchstart 事件对象数据
   let prevDistance = 0; // 上一个 distance
@@ -259,6 +261,8 @@ const bindEvent = (options) => {
     io.observe(infinateEl);
   }
 
+  const progressThrottle = createThrottle();
+
   const handleMove = ev => {
     if (ev.touches.length > 1) return;
     if (options.stayingOfTouchLife || options.backingOfTouchLife) return;
@@ -282,6 +286,7 @@ const bindEvent = (options) => {
     }
     if (options.pulling) {
       let distance = options.distance;
+      let detail = Object.create(null);
       // 限制 distance
       if (options.action === 'pulldown') {
         distance = (originDeltaData.deltaA - originScrollDistance) * damping + prevDistance;
@@ -292,16 +297,25 @@ const bindEvent = (options) => {
         if (distance > 0) distance = 0;
         pullupStatusUpdate(distance, options);
       }
+      detail.action = options.action;
+      detail.max = options[options.action].triggerDistance;
+      detail.value = Math.abs(distance);
+      detail.ratio = Math.min(detail.value / detail.max, 1);
+      progressThrottle(() => {
+        this.dispatchEvent(new CustomEvent('progress', {
+          detail,
+        }));
+      });
+      slideTo(motionEl, cssfunc, distance, null, options);
       // 阻止滚动并移动
       ev.preventDefault();
       ev.stopPropagation();
-      slideTo(motionEl, cssfunc, distance, null, options);
     }
     // 更新 startData
     startData = moveData;
   };
 
-  const handleEnd = (ev) => {
+  const handleEnd = ev => {
     document.removeEventListener('touchmove', handleMove, {
       passive: false,
       capture: false,
@@ -351,8 +365,9 @@ const bindEvent = (options) => {
   scrollEl.addEventListener('touchstart', handleStart, false);
 };
 
-export default class Pull {
+export default class Pull extends EventTarget {
   constructor(options) {
+    super();
     if (!options.elements) return;
     options = mergeOptions(defaultOptions, options);
     Object.assign(options, {
@@ -380,8 +395,8 @@ export default class Pull {
       endPullDirection: 'left',
     });
     wm.set(this, options);
-    init(options);
-    bindEvent(options);
+    init.apply(this);
+    bindEvent.apply(this);
   };
   // 主动触发加载效果
   pulldown() {

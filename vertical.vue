@@ -57,6 +57,9 @@ export default {
       },
     });
     pull.pulldown();
+    pull.addEventListener('progress', ev => {
+      console.log(ev.detail);
+    });
   },
 };
 </script>
