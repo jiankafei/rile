@@ -140,6 +140,7 @@ const pullFetchProcess = (options) => {
     });
 };
 
+// infinateFetchProcess 流程
 const infinateFetchProcess = (options) => {
   const {
     fetch,
