@@ -114,8 +114,9 @@ const pullFetchProcess = (options) => {
         options.stayingOfTouchLife = false;
         options.status = 'fetch';
         return fetch[action]()
-          .then(() => new Promise((resolve) => {
-            if (loadedStayTime < 200) {
+          .then(res => new Promise((resolve) => {
+            console.log(res);
+            if (loadedStayTime < 32) {
               resolve();
             } else {
               setTimeout(() => {
@@ -140,7 +141,15 @@ const pullFetchProcess = (options) => {
 };
 
 const infinateFetchProcess = (options) => {
-  console.log(111);
+  const {
+    fetch,
+    action,
+  } = options;
+  fetch[action]()
+    .then(res => {
+      console.log(res);
+    })
+    .catch(console.warn);
 };
 
 // init
@@ -239,6 +248,7 @@ const bindEvent = (options) => {
   if (infinateEl) {
     const io = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
+        options.action = 'infinate';
         infinateFetchProcess(options);
       }
     }, {
