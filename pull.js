@@ -386,16 +386,27 @@ export default class Pull {
   // 主动触发加载效果
   pulldown() {
     const options = wm.get(this);
+    const {
+      elements,
+      scrollProp,
+    } = options;
+    elements.scrollEl[scrollProp] = 0;
     options.pulling = true;
     options.action = 'pulldown';
     pullFetchProcess(options);
   };
   pullup() {
     const options = wm.get(this);
-    if (finalEndReached(options.elements.scrollEl, options)) {
-      options.pulling = true;
-      options.action = 'pullup';
-      pullFetchProcess(options);
-    }
+    const {
+      elements,
+      scrollProp,
+      scrollSize,
+      clientSize,
+    } = options;
+    const scrollEl = elements.scrollEl;
+    scrollEl[scrollProp] = scrollEl[scrollSize] - scrollEl[clientSize];
+    options.pulling = true;
+    options.action = 'pullup';
+    pullFetchProcess(options);
   };
 }
