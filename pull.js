@@ -386,6 +386,7 @@ export default class Pull {
   // 主动触发加载效果
   pulldown() {
     const options = wm.get(this);
+    if (options.loadLife) return;
     const {
       elements,
       scrollProp,
@@ -397,6 +398,7 @@ export default class Pull {
   };
   pullup() {
     const options = wm.get(this);
+    if (options.loadLife) return;
     const {
       elements,
       scrollProp,
