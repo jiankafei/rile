@@ -401,7 +401,7 @@ export default class Pull {
       elements,
       scrollProp,
       scrollSize,
-      clientSize,
+      // clientSize,
     } = options;
     const scrollEl = elements.scrollEl;
     // scrollEl[scrollProp] = scrollEl[scrollSize] - scrollEl[clientSize];
