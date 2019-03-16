@@ -336,7 +336,7 @@ const bindEvent = function() {
     if (!deltaData.delta) return;
     if (options.pullStatus === 'over') {
       pullFetchProcess(options);
-    } else {
+    } else if (options.pullStatus === 'less') {
       slideTo(motionEl, cssfunc, 0, 200, options)
         .then(() => {
           options.pulling = false;
