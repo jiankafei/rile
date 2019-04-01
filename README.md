@@ -1,4 +1,6 @@
-# Pull
+# rile
+
+pull to refresh or loadmore and infinat. Coming soon.
 
   1. 下拉刷新，上拉加载，无限加载
   2. 支持横轴纵轴
